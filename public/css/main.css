@@ -81,7 +81,7 @@ body[data-is-dev="true"]::after {
 
 .anchor {
 	text-decoration: none;
-	color: var(--badge);
+	color: var(--badge-text, var(--badge));
 }
 
 .anchor:hover {
@@ -143,8 +143,7 @@ aside.main-sidebar>*+* {
 }
 
 aside .logo img {
-	width: 100%;
-	border: 1px solid var(--border-dark);
+	width: 3rem;
 	border-radius: 4px;
 }
 
@@ -858,7 +857,7 @@ input, textarea {
 }
 
 .progress[data-color="recent"] {
-	color: var(--badge);
+	color: var(--badge-text, var(--badge));
 }
 
 .chapters .chapter.badge-background .progress[data-color="recent"] {
@@ -876,7 +875,7 @@ input, textarea {
 .chapter .chapter-icon svg {
 	display: inline-block;
 	margin-right: 10px;
-	color: var(--badge);
+	color: var(--badge-text, var(--badge));
 }
 
 .chapter .do-center {
@@ -1670,6 +1669,33 @@ div.selection-actions .selection-actions-inner {
 
 .img-share .to-share {
 	width: 100%;
+}
+
+.el-hidden {
+	display: none;
+}
+
+/* Push */
+
+.push-notif-button:not(.el-hidden) {
+	width: 100%;
+	background: var(--body-offset);
+	color: var(--text);
+	padding: 8px 16px;
+	border: 1px solid var(--border);
+	border-radius: 6px;
+	margin: 20px 0;
+	font-size: 1rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	cursor: pointer;
+}
+
+.push-notif-button svg {
+	display: block;
+	width: 1.2rem;
+	height: 1.2rem;
 }
 
 /* Responsiveness */

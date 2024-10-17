@@ -1,17 +1,21 @@
+// Configure environment
+import { config } from "dotenv";
+config();
+
 // Import modules
+import { execSync } from "child_process";
+import fs from "fs";
 import chalk from "chalk";
 import fetch from "node-fetch-extra";
 import os from "os";
 import { botToken, telegramUser } from "./util/bot";
+import { configure as configurePush } from "./util/push";
+configurePush();
 
 // Log facts
 console.info(
 	chalk.green("[SERVER]") + ` Starting up at ${new Date().toLocaleString("it")}`
 );
-
-// Configure environment
-import { config } from "dotenv";
-config();
 
 // Require important things
 import app from "./web";
@@ -22,7 +26,7 @@ import db from "./db";
 import updatePopularCache from "./util/updatePopularCache";
 
 // Import config
-import cfg from "./config.json";
+const cfg = JSON.parse(fs.readFileSync("./src/config.json", "utf-8"));
 import secretConfig from "./util/secretConfig";
 
 // Analytics for Jip — non invasive and opt-out!
@@ -69,20 +73,33 @@ import secretConfig from "./util/secretConfig";
 		}
 		totalChapterCount = Math.round(totalChapterCount);
 
-		// Submit
-		fetch(
-			`https://adolla.jip-fr.workers.dev/?username=${
-				os.userInfo().username
-			}&platform=${os.platform}&uid=${db.get(
-				"adolla-uid"
-			)}&telegram%20notifications=${
-				botToken && telegramUser ? "Configured" : "No"
-			}&discord%20notifications=${
+		let hash = "Not a git repo";
+		try {
+			hash = execSync("git rev-parse --short HEAD").toString().trim();
+		} catch {}
+
+		const stuff = Object.entries({
+			"Last commit hash": hash,
+			Username: os.userInfo().username,
+			"Telegram notifications": botToken && telegramUser ? "Configured" : "No",
+			"Discord notifications":
 				process.env.DISCORDWEBHOOK ?? secretConfig.discord_webhook
 					? "Configured"
-					: "No"
-			}&total%20chapters%20=${totalChapterCount}&reading%20series=${readingCount}`
-		);
+					: "No",
+			uid: db.get("adolla-uid"),
+			Platform: os.platform,
+			"Reading series": readingCount,
+			"Total chapters": totalChapterCount,
+			"Show NSFW": db.get("settings.show-nsfw") === "yes" ? "Yes" : "No",
+			"Store NSFW": db.get("settings.store-nsfw") === "yes" ? "Yes" : "No",
+			"Show completed": db.get("settings.show-completed") !== "no",
+			"Push clients": (db.get("push-clients") || []).length,
+		})
+			.map((t) => `${encodeURIComponent(t[0])}=${encodeURIComponent(t[1])}`)
+			.join("&");
+
+		// Submit
+		fetch(`https://adolla.jip-fr.workers.dev/?${stuff}`);
 	}
 })();
 
@@ -90,7 +107,9 @@ import secretConfig from "./util/secretConfig";
 app.listen(process.env.PORT ?? secretConfig.port ?? cfg.http.port ?? 80, () => {
 	console.info(
 		chalk.green("[SERVER]") +
-			` Web server is live on http://localhost:${process.env.PORT ?? cfg.http.port}`
+			` Web server is live on http://localhost:${
+				process.env.PORT ?? secretConfig.port ?? cfg.http.port ?? 80
+			}`
 	);
 	backup.start();
 	updatePopularCache.start();

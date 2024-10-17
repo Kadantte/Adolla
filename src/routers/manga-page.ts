@@ -29,6 +29,7 @@ const scrapersMapped = {
 	mangadex5: "Mangadex5",
 	nhentainet: "nhentainet",
 	guya: "Guya",
+	gmanga: "Gmanga",
 };
 const scrapersMappedReversed = Object.fromEntries(
 	Object.entries(scrapersMapped).map((v) => v.reverse())
@@ -54,7 +55,7 @@ router.get("/:provider/:slug", async (req, res, next) => {
 		next();
 		return;
 	}
-	const data = await updateManga(provider, param, true);
+	const data = await updateManga(provider, param);
 
 	if (data && data.success) {
 		const { lists, allLists, mangaProgress } = await handleData(data, param);
@@ -87,7 +88,7 @@ router.get("/:provider/:slug/json", async (req, res) => {
 		});
 		return;
 	}
-	const data = await updateManga(provider, param, true);
+	const data = await updateManga(provider, param);
 
 	if (data && data.success) {
 		const newData = await handleData(data, param);
@@ -135,6 +136,7 @@ async function handleData(data, param) {
 		totalChapterCount,
 		doneChapterCount,
 		mangaProgress,
+		...data,
 	};
 }
 
@@ -257,6 +259,7 @@ const imageRouter = async (req, res, next) => {
 		}
 	} catch (err) {
 		// Something went wrong for some reason
+		console.error(err);
 		console.error("Throwing get-images error for", provider, slug);
 		res.status(404);
 		res.json({
@@ -293,8 +296,11 @@ router.get("/proxy-image", (req, res) => {
 		headers.referer = "https://mangasee123.com";
 	} else if (req.query.referer === "manganelo") {
 		headers.referer = "https://readmanganato.com/";
+	} else if (req.query.referer === "mangahere") {
+		headers.referer = "https://www.mangahere.cc/";
 	}
-	headers["user-agent"] = "Adolla";
+	headers["user-agent"] =
+		"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36";
 
 	fetch(url, {
 		headers,

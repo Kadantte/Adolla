@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import fetch from "node-fetch-extra";
+import fs from "fs";
 
-import cfg from "../config.json";
 import updateManga from "./updateManga";
 import * as scrapers from "../scrapers";
 import db from "../db";
@@ -13,6 +13,10 @@ import secretConfig from "../util/secretConfig";
 import { Progress } from "../types";
 import { getProviderId } from "../routers/manga-page";
 import { getAnnouncements } from "./getAnnouncements";
+import { sendPushNotification } from "./push";
+import { getUnreadCount } from "./unread";
+
+const cfg = JSON.parse(fs.readFileSync("./src/config.json", "utf-8"));
 
 const clean = (str: string | number) => {
 	return str.toString().replace(/\./g, "_");
@@ -165,6 +169,18 @@ class Updater {
 												chalk.red("[NOTIFS]") +
 													` New chapter found for ${data.constant.title} but Telegram Bot is not configured`
 											);
+										}
+
+										if (doNotify) {
+											console.info(
+												chalk.green("[NOTIFS]") +
+													` New chapter found for ${data.constant.title}, notifying all push clients`
+											);
+											sendPushNotification({
+												title: `${data.constant.title} — ${nextChapter.label}`,
+												body: "A new chapter has been released",
+												badgeCount: await getUnreadCount(),
+											});
 										}
 
 										// Discord webhook

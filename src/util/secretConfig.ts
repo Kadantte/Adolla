@@ -2,7 +2,14 @@ import os from "os";
 import path from "path";
 import chalk from "chalk";
 import fs from "fs";
-import exampleConfig from "../example.secret-config.json";
+
+// Configure environment
+import { config } from "dotenv";
+config();
+
+const exampleConfig = JSON.parse(
+	fs.readFileSync("./src/example.secret-config.json", "utf-8")
+);
 
 interface SecretConfig {
 	telegram?: {
@@ -20,12 +27,15 @@ interface SecretConfig {
 
 let secretConfig: SecretConfig | null;
 
-const homePath = path.join(os.homedir(), ".adolla");
+export const homePath = path.join(
+	os.homedir(),
+	`.adolla${process.env.DIRSUFFIX ? `-${process.env.DIRSUFFIX}` : ""}`
+);
 if (!fs.existsSync(homePath)) {
 	fs.mkdirSync(homePath);
 }
 
-const configPath = path.join(os.homedir(), ".adolla", "secret-config.json");
+const configPath = path.join(homePath, "secret-config.json");
 const oldPath =
 	__dirname.split("/").slice(0, -1).join("/") + "/secret-config.json"; // Ew
 

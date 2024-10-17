@@ -16,16 +16,16 @@ export class comicextraClass extends Scraper {
 	}
 
 	public async search(query: string, options?: Partial<SearchOptions>) {
-		let resultCount = 10;
+		let resultCount = 20;
 
 		let pageUrl: string;
 
 		if (query === "") {
 			// Get popular page
-			pageUrl = "https://www.comicextra.com/popular-comic";
+			pageUrl = "https://comixextra.com/popular-comic";
 			resultCount = 5;
 		} else {
-			pageUrl = `https://www.comicextra.com/comic-search?key=${encodeURIComponent(
+			pageUrl = `https://comixextra.com/search?keyword=${encodeURIComponent(
 				query
 			)}`;
 		}
@@ -95,7 +95,7 @@ export class comicextraClass extends Scraper {
 	): Promise<ScraperResponse> {
 		try {
 			// Get HTML
-			const pageReq = await fetch(`https://www.comicextra.com/comic/${slug}`);
+			const pageReq = await fetch(`https://comixextra.com/comic/${slug}`);
 			const pageHtml = await pageReq.text();
 
 			// Get variables
@@ -108,7 +108,7 @@ export class comicextraClass extends Scraper {
 			// Get poster URL
 			let posterUrl = document.querySelector(".movie-l-img img").src;
 			if (posterUrl.startsWith("/"))
-				posterUrl = "https://www.comicextra.com" + posterUrl;
+				posterUrl = "https://comixextra.com" + posterUrl;
 
 			// Get genres from tags
 			const genres = [
@@ -216,7 +216,8 @@ export class comicextraClass extends Scraper {
 			let chapterImages = [];
 			if (chapterId != "-1") {
 				// Scrape page to find images
-				const url = `https://www.comicextra.com/${slug}/${chapterId}/full`;
+				const url = `https://comixextra.com/${slug}/${chapterId}/full`;
+
 				const chapterPageReq = await fetch(url);
 				const chapterPageHtml = await chapterPageReq.text();
 
@@ -224,7 +225,9 @@ export class comicextraClass extends Scraper {
 				const dom = new JSDOM(chapterPageHtml);
 				const chapterDocument = dom.window.document;
 
-				const images = [...chapterDocument.querySelectorAll(".chapter_img")];
+				const images = [
+					...chapterDocument.querySelectorAll(".chapter-container img"),
+				];
 				chapterImages = images.map((v) => v.src);
 			}
 
@@ -254,7 +257,7 @@ export class comicextraClass extends Scraper {
 				provider: isProviderId(providerId) ? providerId : null,
 			};
 		} catch (e) {
-			console.log(e);
+			console.error(e);
 			return {
 				success: false,
 				status: 0,

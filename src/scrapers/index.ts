@@ -60,8 +60,8 @@ export const Mangasee = MangaseeInstance;
 // export const Mangadex = MangadexInstance;
 
 // Import ReadComicsOnline
-import RCOInstance from "./rco";
-export const RCO = RCOInstance;
+// import RCOInstance from "./rco";
+// export const RCO = RCOInstance;
 
 // Import Manganelo
 import ManganeloInstance from "./manganelo";
@@ -80,8 +80,8 @@ import nhentainetInstance from "./nhentainet";
 export const nhentainet = nhentainetInstance;
 
 // Import Mangahere
-import MangahereInstance from "./mangahere";
-export const Mangahere = MangahereInstance;
+// import MangahereInstance from "./mangahere";
+// export const Mangahere = MangahereInstance;
 
 // Import MangaDex V5
 import MangadexInstance from "./mangadex-v5";
@@ -91,14 +91,19 @@ export const Mangadex5 = MangadexInstance;
 import GuyaInstance from "./guya";
 export const Guya = GuyaInstance;
 
+// Import Gmanga
+import GmangaInstance from "./gmanga";
+export const Gmanga = GmangaInstance;
+
 export const scrapers = {
 	Mangasee,
 	Mangadex5,
 	Manganelo,
-	Mangahere,
-	RCO,
+	// Mangahere,
+	// RCO,
 	ComicExtra,
 	nhentai,
 	nhentainet,
 	Guya,
+	Gmanga,
 };

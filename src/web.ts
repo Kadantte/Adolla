@@ -2,6 +2,7 @@
 import express from "express";
 import handlebars from "express-handlebars";
 import bodyParser from "body-parser";
+import cors from "cors";
 
 // Import custom modules
 import routers from "./routers";
@@ -11,6 +12,9 @@ import { getProviderId } from "./routers/manga-page";
 import db from "./db";
 
 const app = express();
+
+app.use(cors());
+app.options("*", cors());
 
 // Set up view engine
 app.engine(
@@ -50,9 +54,10 @@ app.engine(
 					nhentai: "https://nhentai.to/img/logo.650c98bbb08e.svg",
 					nhentainet: "https://nhentai.net/favicon.ico",
 					manganelo: "https://manganato.com/favicon-96x96.png",
-					comicextra: "https://www.comicextra.com/images/site/front/logo.png",
+					comicextra: "https://comixextra.com/images/site/front/logo.png",
 					mangahere: "/proxy-image?url=https://www.mangahere.cc/favicon.ico",
 					guya: "https://guya.moe/static/logo_small.png",
+					gmanga: "https://gmanga.org/assets/product/gmanga/logo.png",
 				};
 				return icons[provider] ?? "/icons/main-on-white.png";
 			},
@@ -155,6 +160,9 @@ app.engine(
 
 				return colorArray;
 			},
+			getThemeColor() {
+				return db.get("settings.theme")?.badge || "#4babce";
+			},
 		},
 	})
 );
@@ -171,6 +179,7 @@ app.use(bodyParser.json());
 app.use("/", routers.home);
 app.use("/search", routers.search);
 app.use("/lists", routers.lists);
+app.use("/subscribe", routers.notifs);
 app.use("/", routers.settings);
 
 // Static assets

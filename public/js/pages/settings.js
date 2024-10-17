@@ -80,6 +80,13 @@ const colorOptions = [
 	{
 		badge: "#ed412d",
 	},
+	{
+		badge: "#719A6B",
+	},
+	{
+		badge: "#2f364a",
+		"badge-text": "white",
+	},
 ];
 
 for (let color of colorOptions) {
@@ -97,16 +104,6 @@ for (let color of colorOptions) {
 			.trim()
 	)
 		colorOption.classList.add("selected");
-
-	console.log(
-		color.badge.toLowerCase().trim(),
-		getComputedStyle(document.body).getPropertyValue("--badge").toLowerCase(),
-		color.badge.toLowerCase().trim() ===
-			getComputedStyle(document.body)
-				.getPropertyValue("--badge")
-				.toLowerCase()
-				.trim()
-	);
 
 	colorOption.addEventListener("click", () => {
 		fetch("/settings/set-app-theme", {

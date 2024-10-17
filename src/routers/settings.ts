@@ -1,14 +1,13 @@
 import express from "express";
 import db from "../db";
 import fs from "fs";
-import os from "os";
 import getReading from "../util/getReading";
 import getIconSrc, { iconNames, iconNamesReversed } from "../util/getIconSrc";
 import path from "path";
 import { removeData } from "./lists";
 import { List } from "../types";
+import { homePath } from "../util/secretConfig";
 
-const homePath = path.join(os.homedir(), ".adolla");
 const backupsPath = path.join(homePath, "backups", "");
 
 const router = express.Router();
@@ -53,7 +52,8 @@ router.get("/settings/", async (req, res) => {
 				name: getIconName(fileName),
 				isSelected: src === currentIcon,
 			};
-		});
+		})
+		.filter((t) => t.name);
 
 	// Get backups
 	const backupFiles = fs.readdirSync(backupsPath);
@@ -232,6 +232,7 @@ router.get("/manifest.json", (req, res) => {
 	res.json({
 		name: `${process.env.dev ? "DEV " : ""}Adolla`,
 		short_name: `${process.env.dev ? "DEV " : ""}Adolla`,
+		id: "Adolla",
 		lang: "EN",
 		start_url: "/",
 		display: "standalone",
@@ -247,11 +248,23 @@ router.get("/manifest.json", (req, res) => {
 	});
 });
 
+router.get("/osdd.xml", (req, res) => {
+	res.setHeader("content-type", "application/xml");
+	res.send(`<?xml version="1.0"?>
+	<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
+		<ShortName>Adolla</ShortName>
+		<Description>Search Adolla</Description>
+		<Url type="text/html" method="get" template="${db.get(
+			"other.host"
+		)}search/mangasee/?q={searchTerms}" />
+	</OpenSearchDescription>`);
+});
+
 function getIconName(fileName: string) {
 	// Get array with each "section" of file name
 	const str = fileName.split(/-|\./).slice(0, -1).join("-");
 
-	return iconNames[str] ?? "Unknown";
+	return iconNames[str] ?? null;
 }
 
 export default router;
